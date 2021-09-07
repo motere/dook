@@ -1,0 +1,35 @@
+{
+  "name": "dook-root",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "example",
+      "website"
+    ]
+  },
+  "scripts": {
+    "format": "prettier --write \"packages/**/src/**/*.{ts,tsx}\"",
+    "test": "lerna run --parallel --stream test",
+    "test:watch": "lerna run --parallel --stream test:watch",
+    "build": "lerna run --stream build",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "publish": "lerna publish --force-publish=*"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "/.history/"
+    ]
+  },
+  "devDependencies": {
+    "prettier": "^2.3.2",
+    "coveralls": "^3.1.1",
+    "lerna": "^4.0.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.2"
+  }
+}
