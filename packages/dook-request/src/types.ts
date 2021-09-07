@@ -1,8 +1,8 @@
-type Method = 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH' | 'HEAD'
+export type CommonObject<T = any> = Record<string, T>
 
-interface BodyObject {
-  [key: string]: any
-}
+type Method = 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH' | 'HEAD' | ({} & string)
+
+type BodyObject = CommonObject
 
 export type Body =
   | Blob
@@ -15,16 +15,24 @@ export type Body =
   | any[]
   | null
 
-export type Query = Record<string, any>
-export type Params = Record<string, string | number | boolean>
-export type Headers = Record<string, string>
 
-export type Type = 'text' | 'json' | 'blob' | 'arrayBuffer' | 'formData'
+export type Query = CommonObject
+export type Params = CommonObject<string | number | boolean>
+export type Headers = CommonObject<string>
 
-export interface Options extends Omit<RequestInit, 'body'> {
-  query?: Query | (() => Query)
-  body?: Body | (() => Body)
-  params?: Params | (() => Params)
+export type ResponseType = 'text' | 'json' | 'blob' | 'arraybuffer' | 'formData' | ({} & string)
+
+export interface RequestCoreOptions {
+  path?: string
   method?: Method
-  type?: Type
+  baseURL?: string
+  timeout?: number
+  params?: Params
+  data?: CommonObject
+  headers?: Headers
+  responseType?: ResponseType
+}
+
+export interface RequestHookOption extends RequestCoreOptions {
+  variables?: CommonObject | (() => CommonObject)
 }

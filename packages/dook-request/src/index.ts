@@ -1,9 +1,36 @@
-import { Client } from './Client'
+import request from './request'
+import { RequestHookOption } from './types'
+import { isGraphQL, merge } from './util'
 
-const client = new Client()
+function createQueryHook<T extends RequestHookOption, N = any>(initOptions?: T, requestCore = request) {
 
-const { request, configure } = client
+  function makeFetch(queryKey: string, options?: T) {
+    const { variables, ...rest } = merge<T>(initOptions, options)
+    const reqOptions: any = rest
 
-export * from './types'
-export { Client } from './Client'
-export { request, configure }
+    if (isGraphQL(queryKey)) {
+      reqOptions.method = 'POST'
+      reqOptions.data = {
+        query: queryKey,
+        variables: typeof variables === 'object' ? variables : variables?.()
+      }
+    } else {
+      reqOptions.path = queryKey
+    }
+
+    return requestCore<T, N>(reqOptions)
+  }
+
+  return function (queryKey: string, options?: RequestHookOption) {
+
+
+
+
+  }
+}
+
+const useQuery = createQueryHook()
+
+export { useQuery, createQueryHook }
+
+export default useQuery
