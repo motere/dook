@@ -1,6 +1,6 @@
 {
   "name": "example",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "dook-request": "^0.0.1",
+    "dooks-request": "^0.0.1",
     "next": "^11.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
