@@ -1,11 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useContext, createContext } from 'react'
 import request from './request'
 import { RequestHookOption } from './types'
-import { isGraphQL, merge } from './util'
+import { isGraphQL } from './util'
 
-function createQueryHook<T extends RequestHookOption, N = any>(initOptions?: T, httpAgent = request) {
-  function makeFetch(queryKey: string, options?: T) {
-    const { variables, ...rest } = merge<T>(initOptions, options)
+interface ContextTypes<T, N> {
+  httpAgent?: (options: T) => Promise<N>
+}
+class QueryHook {
+
+  context = createContext<ContextTypes<any, any>>({ httpAgent: request })
+
+  getOptions(queryKey: string, options?: any) {
+    const { variables, ...rest } = options || {}
     const reqOptions: any = rest
 
     if (isGraphQL(queryKey)) {
@@ -18,15 +24,16 @@ function createQueryHook<T extends RequestHookOption, N = any>(initOptions?: T, 
       reqOptions.path = queryKey
     }
 
-    return httpAgent<T, N>(reqOptions)
+    return reqOptions
   }
 
-  return function (queryKey: string, options?: RequestHookOption) {
+  useQuery(queryKey: string, options?: RequestHookOption) {
+    const { httpAgent } = useContext(this.context)
     const [state, setState] = useState({ data: null, error: null })
     const unmountRef = useRef(false)
 
     useEffect(() => {
-      makeFetch(queryKey, options as any)
+      httpAgent!(this.getOptions(queryKey, options))
         .then(res => {
           if (unmountRef.current) return
           setState((prev) => Object.assign({}, prev, { data: res }))
@@ -45,8 +52,7 @@ function createQueryHook<T extends RequestHookOption, N = any>(initOptions?: T, 
   }
 }
 
-const useQuery = createQueryHook()
+const queryHook = new QueryHook()
 
-export { useQuery, createQueryHook }
-
-export default useQuery
+export const Provider = queryHook.context.Provider
+export const useQuery = queryHook.useQuery.bind(queryHook)
